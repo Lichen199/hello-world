@@ -1060,24 +1060,23 @@
                 if (this.ultimateCooldown > 0 || this.state === 'hit' || this.state === 'win') return false;
                 if (this.ultimateCharge < this.maxUltimateCharge) return false;
                 
-                this.state = 'skill';
+                this.state = 'ult_kick';
                 this.ultimateCooldown = this.ultimateMaxCooldown;
                 this.ultimateCharge = 0;
                 this.attackDamage = 50;
-                this.attackRange = 300;
+                this.attackRange = 150;
                 this.attackFrame = 0;
                 this.isAttacking = true;
+                this.ultStartX = this.x;
+                this.ultDirection = this.facing;
                 
-                this.skillEffects.push(new SkillEffect(this.x + this.width/2, this.y - 40, 'ultimate', this.isPlayer1));
-                this.createSkillParticles(50, this.lightColor);
-                
-                game.screenShake(15, 0.5);
+                game.screenShake(10, 0.3);
                 
                 return true;
             }
 
             defend(isDefending) {
-                if (isDefending && this.state !== 'attack' && this.state !== 'hit' && this.state !== 'win' && this.state !== 'skill') {
+                if (isDefending && this.state !== 'attack' && this.state !== 'hit' && this.state !== 'win' && this.state !== 'skill' && this.state !== 'ult_kick') {
                     this.state = 'defend';
                     this.velocityX = 0;
                 } else if (!isDefending && this.state === 'defend') {
@@ -1138,6 +1137,35 @@
                     if (this.attackFrame > 20) {
                         this.state = 'idle';
                         this.isAttacking = false;
+                    }
+                }
+                
+                if (this.state === 'ult_kick') {
+                    this.attackFrame++;
+                    const progress = this.attackFrame / 35;
+                    
+                    if (progress < 0.3) {
+                        this.velocityX = this.ultDirection * 5;
+                        this.velocityY = -12;
+                    } else if (progress < 0.7) {
+                        this.velocityX = this.ultDirection * 20;
+                        this.velocityY = 0;
+                    } else {
+                        this.velocityX *= 0.9;
+                        if (this.attackFrame > 35) {
+                            this.state = 'idle';
+                            this.isAttacking = false;
+                        }
+                    }
+                    
+                    for (let i = 0; i < 3; i++) {
+                        this.particles.push(new Particle(
+                            this.x + this.width/2 + (Math.random() - 0.5) * 30,
+                            this.y - 40 + (Math.random() - 0.5) * 30,
+                            this.lightColor,
+                            (Math.random() - 0.5) * 8,
+                            (Math.random() - 0.5) * 8 - 2
+                        ));
                     }
                 }
 
@@ -1272,12 +1300,31 @@
                 if (this.state === 'defend') {
                     ctx.globalAlpha = 0.7;
                 }
+                
+                if (this.state === 'ult_kick') {
+                    for (let i = 0; i < 5; i++) {
+                        const trailX = this.x + this.width/2 - this.ultDirection * (i * 20);
+                        const alpha = 0.3 - i * 0.05;
+                        ctx.globalAlpha = alpha;
+                        ctx.fillStyle = this.lightColor;
+                        ctx.fillRect(trailX - 20, drawY - 60, 40, 50);
+                    }
+                }
 
                 ctx.translate(drawX + this.width / 2, drawY);
                 ctx.scale(this.facing, 1);
                 ctx.translate(-this.width / 2, 0);
 
                 this.drawMech(0, -this.height);
+                
+                if (this.state === 'ult_kick' && this.attackFrame > 10 && this.attackFrame < 25) {
+                    ctx.fillStyle = this.lightColor;
+                    ctx.shadowColor = this.lightColor;
+                    ctx.shadowBlur = 30;
+                    ctx.fillRect(50, -50, 35, 25);
+                    ctx.fillRect(70, -60, 25, 35);
+                    ctx.shadowBlur = 0;
+                }
 
                 ctx.restore();
 
