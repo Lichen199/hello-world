@@ -370,7 +370,7 @@
                 <strong>P1:</strong> <span class="key">W</span>跳 <span class="key">A</span><span class="key">D</span>移动 <span class="key">S</span>防御 <span class="key">J</span>轻攻 <span class="key">K</span>重攻
             </div>
             <div class="controls-info">
-                <strong>P2:</strong> <span class="key">↑</span>跳 <span class="key">←</span><span class="key">→</span>移动 <span class="key">↓</span>防御 <span class="key">1</span>轻攻 <span class="key">2</span>重攻
+                <strong>P2:</strong> <span class="key">↑</span>跳 <span class="key">←</span><span class="key">→</span>移动 <span class="key">↓</span>防御 <span class="key">1/Num1</span>轻攻 <span class="key">2/Num2</span>重攻
             </div>
         </div>
 
@@ -406,8 +406,8 @@
                         <span class="key">↑</span> 跳跃<br>
                         <span class="key">←</span> <span class="key">→</span> 左右移动<br>
                         <span class="key">↓</span> 防御<br>
-                        <span class="key">1</span> 轻攻击<br>
-                        <span class="key">2</span> 重攻击
+                        <span class="key">1</span>/<span class="key">Num1</span> 轻攻击<br>
+                        <span class="key">2</span>/<span class="key">Num2</span> 重攻击
                     </p>
                 </div>
             </div>
@@ -859,8 +859,8 @@
                 if (this.keys['ArrowRight']) this.player2.move(1);
                 if (this.keys['ArrowDown']) this.player2.defend(true);
                 else this.player2.defend(false);
-                if (this.keys['Digit1']) this.player2.attack('light');
-                if (this.keys['Digit2']) this.player2.attack('heavy');
+                if (this.keys['Digit1'] || this.keys['Numpad1']) this.player2.attack('light');
+                if (this.keys['Digit2'] || this.keys['Numpad2']) this.player2.attack('heavy');
             }
 
             checkCollisions() {
@@ -871,8 +871,8 @@
                 
                 if (p1Attack) {
                     if (this.checkAABB(p1Attack, p2Hit)) {
-                        const damage = this.player1.takeDamage(this.player1.attackDamage, this.player1.facing);
-                        if (damage) {
+                        const hit = this.player2.takeDamage(this.player1.attackDamage, this.player1.facing);
+                        if (hit) {
                             this.player1.isAttacking = false;
                             this.createHitParticles(this.player2.x + 30, this.player2.y - 40, COLORS.yellow);
                         }
@@ -884,8 +884,8 @@
                 
                 if (p2Attack) {
                     if (this.checkAABB(p2Attack, p1Hit)) {
-                        const damage = this.player2.takeDamage(this.player2.attackDamage, this.player2.facing);
-                        if (damage) {
+                        const hit = this.player1.takeDamage(this.player2.attackDamage, this.player2.facing);
+                        if (hit) {
                             this.player2.isAttacking = false;
                             this.createHitParticles(this.player1.x + 30, this.player1.y - 40, COLORS.yellow);
                         }
