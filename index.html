@@ -12,7 +12,7 @@
         }
 
         body {
-            background: #1a1a2e;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -29,8 +29,20 @@
             border: 4px solid #3d405b;
             box-shadow: 
                 0 0 0 4px #1a1a2e,
-                0 0 40px rgba(230, 57, 70, 0.3),
-                0 0 40px rgba(69, 123, 157, 0.3);
+                0 0 60px rgba(230, 57, 70, 0.4),
+                0 0 60px rgba(69, 123, 157, 0.4),
+                inset 0 0 100px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-container.shake {
+            animation: screenShake 0.1s ease-out;
+        }
+
+        @keyframes screenShake {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(-3px, 2px); }
+            50% { transform: translate(3px, -2px); }
+            75% { transform: translate(-2px, -3px); }
         }
 
         #gameCanvas {
@@ -48,12 +60,13 @@
             height: 100%;
             background: repeating-linear-gradient(
                 0deg,
-                rgba(0, 0, 0, 0.1) 0px,
-                rgba(0, 0, 0, 0.1) 1px,
+                rgba(0, 0, 0, 0.15) 0px,
+                rgba(0, 0, 0, 0.15) 1px,
                 transparent 1px,
                 transparent 2px
             );
             pointer-events: none;
+            z-index: 5;
         }
 
         .crt-effect {
@@ -65,10 +78,11 @@
             background: radial-gradient(
                 ellipse at center,
                 transparent 0%,
-                rgba(0, 0, 0, 0.2) 90%,
-                rgba(0, 0, 0, 0.4) 100%
+                rgba(0, 0, 0, 0.15) 90%,
+                rgba(0, 0, 0, 0.3) 100%
             );
             pointer-events: none;
+            z-index: 6;
         }
 
         .ui-overlay {
@@ -80,10 +94,21 @@
             justify-content: space-between;
             align-items: flex-start;
             pointer-events: none;
+            z-index: 10;
         }
 
-        .health-container {
-            width: 300px;
+        .player-ui {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .player-ui.p2 {
+            align-items: flex-end;
+        }
+
+        .health-section {
+            width: 320px;
         }
 
         .health-label {
@@ -91,27 +116,50 @@
             font-size: 14px;
             margin-bottom: 5px;
             text-shadow: 2px 2px 0 #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+
+        .player-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .player-name.p1 { color: #e63946; }
+        .player-name.p2 { color: #457b9d; }
 
         .health-bar-bg {
             width: 100%;
-            height: 25px;
+            height: 28px;
             background: #2b2d42;
             border: 3px solid #3d405b;
             position: relative;
+            overflow: hidden;
         }
 
         .health-bar {
             height: 100%;
-            transition: width 0.3s;
+            transition: width 0.3s ease-out;
+            position: relative;
         }
 
         .player1-health {
-            background: linear-gradient(180deg, #e63946 0%, #9d0208 100%);
+            background: linear-gradient(180deg, #ff6b6b 0%, #e63946 50%, #9d0208 100%);
         }
 
         .player2-health {
-            background: linear-gradient(180deg, #457b9d 0%, #1d3557 100%);
+            background: linear-gradient(180deg, #74c0fc 0%, #457b9d 50%, #1d3557 100%);
+        }
+
+        .health-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 100%);
         }
 
         .health-text {
@@ -120,19 +168,106 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: #fff;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
+            text-shadow: 1px 1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000;
+            z-index: 2;
+        }
+
+        .skill-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .player-ui.p2 .skill-section {
+            flex-direction: row-reverse;
+        }
+
+        .skill-slot {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            background: #2b2d42;
+            border: 3px solid #3d405b;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            color: #ffd700;
             text-shadow: 1px 1px 0 #000;
+        }
+
+        .skill-slot.skill1 { border-color: #4ecdc4; }
+        .skill-slot.skill2 { border-color: #ff6b6b; }
+        .skill-slot.ultimate { border-color: #ffd700; }
+
+        .skill-name {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            color: #f1faee;
+            white-space: nowrap;
+        }
+
+        .skill-cooldown {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            color: #ffd700;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .skill-slot.on-cooldown .skill-cooldown {
+            opacity: 1;
+        }
+
+        .skill-slot.ready {
+            animation: skillReady 0.5s ease-out;
+        }
+
+        @keyframes skillReady {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); box-shadow: 0 0 20px currentColor; }
+            100% { transform: scale(1); }
+        }
+
+        .ult-charge {
+            position: absolute;
+            bottom: 2px;
+            left: 2px;
+            right: 2px;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .ult-charge-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffed4a);
+            transition: width 0.1s;
         }
 
         .vs-text {
             color: #ffd700;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
             text-shadow: 
                 2px 2px 0 #000,
-                -1px -1px 0 #000;
+                -1px -1px 0 #000,
+                0 0 20px rgba(255, 215, 0, 0.5);
             animation: pulse 1s infinite;
+            align-self: center;
         }
 
         @keyframes pulse {
@@ -148,22 +283,180 @@
             display: flex;
             justify-content: space-between;
             pointer-events: none;
+            z-index: 10;
         }
 
         .controls-info {
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             padding: 8px 12px;
             border: 2px solid #3d405b;
             color: #f1faee;
             font-size: 10px;
+            border-radius: 4px;
         }
 
-        .controls-info h4 {
-            margin-bottom: 5px;
+        .controls-info strong {
             color: #ffd700;
         }
 
         .menu-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 26, 0.98);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .menu-overlay.hidden {
+            display: none;
+        }
+
+        .game-title {
+            font-size: 56px;
+            color: #e63946;
+            text-shadow: 
+                4px 4px 0 #1d3557,
+                -2px -2px 0 #457b9d,
+                0 0 40px rgba(230, 57, 70, 0.8);
+            margin-bottom: 10px;
+            animation: titleGlow 2s infinite;
+            letter-spacing: 4px;
+        }
+
+        .game-subtitle {
+            font-size: 24px;
+            color: #457b9d;
+            margin-bottom: 40px;
+            text-shadow: 0 0 20px rgba(69, 123, 157, 0.5);
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 4px 4px 0 #1d3557, -2px -2px 0 #457b9d, 0 0 30px #e63946; }
+            50% { text-shadow: 4px 4px 0 #1d3557, -2px -2px 0 #457b9d, 0 0 60px #e63946, 0 0 80px #e63946; }
+        }
+
+        .start-button {
+            background: linear-gradient(180deg, #e63946 0%, #9d0208 100%);
+            color: #fff;
+            border: 4px solid #ffd700;
+            padding: 18px 50px;
+            font-size: 28px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            animation: blink 1s infinite;
+            text-shadow: 2px 2px 0 #000;
+            box-shadow: 0 0 30px rgba(230, 57, 70, 0.5);
+            transition: all 0.3s;
+        }
+
+        .start-button:hover {
+            background: linear-gradient(180deg, #ff6b6b 0%, #e63946 100%);
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(230, 57, 70, 0.8);
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .mech-preview {
+            display: flex;
+            gap: 80px;
+            margin: 30px 0;
+        }
+
+        .mech-card {
+            text-align: center;
+            padding: 25px;
+            background: rgba(61, 64, 91, 0.6);
+            border: 3px solid #3d405b;
+            border-radius: 8px;
+        }
+
+        .mech-card h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .mech-card .type {
+            color: #a8dadc;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .mech-card p {
+            color: #f1faee;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .skills-preview {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 2px solid #3d405b;
+        }
+
+        .skill-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 5px 0;
+            font-size: 11px;
+        }
+
+        .skill-key {
+            background: #3d405b;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #ffd700;
+        }
+
+        .controls-guide {
+            margin-top: 30px;
+            display: flex;
+            gap: 60px;
+        }
+
+        .player-controls {
+            text-align: center;
+            padding: 15px;
+            background: rgba(61, 64, 91, 0.4);
+            border: 2px solid #3d405b;
+            border-radius: 6px;
+        }
+
+        .player-controls h4 {
+            color: #ffd700;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .player-controls p {
+            color: #f1faee;
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        .key {
+            display: inline-block;
+            background: #3d405b;
+            color: #ffd700;
+            padding: 2px 6px;
+            border: 1px solid #ffd700;
+            margin: 0 2px;
+            font-size: 10px;
+            border-radius: 3px;
+        }
+
+        .winner-overlay {
             position: absolute;
             top: 0;
             left: 0;
@@ -174,111 +467,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 10;
-        }
-
-        .menu-overlay.hidden {
-            display: none;
-        }
-
-        .game-title {
-            font-size: 48px;
-            color: #e63946;
-            text-shadow: 
-                4px 4px 0 #1d3557,
-                -2px -2px 0 #457b9d;
-            margin-bottom: 10px;
-            animation: titleGlow 2s infinite;
-        }
-
-        .game-subtitle {
-            font-size: 24px;
-            color: #457b9d;
-            margin-bottom: 40px;
-        }
-
-        @keyframes titleGlow {
-            0%, 100% { text-shadow: 4px 4px 0 #1d3557, -2px -2px 0 #457b9d, 0 0 20px #e63946; }
-            50% { text-shadow: 4px 4px 0 #1d3557, -2px -2px 0 #457b9d, 0 0 40px #e63946; }
-        }
-
-        .start-button {
-            background: linear-gradient(180deg, #e63946 0%, #9d0208 100%);
-            color: #fff;
-            border: 4px solid #f1faee;
-            padding: 15px 40px;
-            font-size: 24px;
-            font-family: 'Courier New', monospace;
-            cursor: pointer;
-            animation: blink 1s infinite;
-            text-shadow: 2px 2px 0 #000;
-        }
-
-        .start-button:hover {
-            background: linear-gradient(180deg, #ff6b6b 0%, #e63946 100%);
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .mech-preview {
-            display: flex;
-            gap: 100px;
-            margin: 30px 0;
-        }
-
-        .mech-card {
-            text-align: center;
-            padding: 20px;
-            background: rgba(61, 64, 91, 0.5);
-            border: 3px solid #3d405b;
-        }
-
-        .mech-card h3 {
-            color: #ffd700;
-            margin-bottom: 10px;
-        }
-
-        .mech-card p {
-            color: #f1faee;
-            font-size: 12px;
-        }
-
-        .controls-guide {
-            margin-top: 30px;
-            display: flex;
-            gap: 80px;
-        }
-
-        .player-controls {
-            text-align: center;
-        }
-
-        .player-controls h4 {
-            color: #ffd700;
-            margin-bottom: 10px;
-        }
-
-        .player-controls p {
-            color: #f1faee;
-            font-size: 11px;
-            line-height: 1.6;
-        }
-
-        .winner-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 15, 26, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
+            z-index: 20;
         }
 
         .winner-overlay.hidden {
@@ -286,106 +475,163 @@
         }
 
         .winner-text {
-            font-size: 64px;
+            font-size: 72px;
             color: #ffd700;
             text-shadow: 
                 4px 4px 0 #000,
-                0 0 30px #ffd700;
+                0 0 40px #ffd700;
             animation: winnerPulse 0.5s infinite;
         }
 
         .winner-text.player1 {
             color: #e63946;
-            text-shadow: 4px 4px 0 #000, 0 0 30px #e63946;
+            text-shadow: 4px 4px 0 #000, 0 0 40px #e63946;
         }
 
         .winner-text.player2 {
             color: #457b9d;
-            text-shadow: 4px 4px 0 #000, 0 0 30px #457b9d;
+            text-shadow: 4px 4px 0 #000, 0 0 40px #457b9d;
         }
 
         @keyframes winnerPulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            50% { transform: scale(1.08); }
         }
 
         .winner-sub {
-            font-size: 24px;
+            font-size: 28px;
             color: #f1faee;
-            margin: 20px 0;
+            margin: 25px 0;
+            text-shadow: 2px 2px 0 #000;
         }
 
         .restart-button {
             background: linear-gradient(180deg, #3d405b 0%, #1a1a2e 100%);
             color: #ffd700;
             border: 4px solid #ffd700;
-            padding: 15px 40px;
-            font-size: 20px;
+            padding: 18px 45px;
+            font-size: 22px;
             font-family: 'Courier New', monospace;
             cursor: pointer;
             margin-top: 20px;
+            transition: all 0.3s;
         }
 
         .restart-button:hover {
             background: linear-gradient(180deg, #4a4e69 0%, #2b2d42 100%);
-        }
-
-        .key {
-            display: inline-block;
-            background: #3d405b;
-            color: #f1faee;
-            padding: 2px 6px;
-            border: 1px solid #f1faee;
-            margin: 0 2px;
-            font-size: 10px;
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
+    <div class="game-container" id="gameContainer">
         <canvas id="gameCanvas" width="900" height="600"></canvas>
         <div class="scanlines"></div>
         <div class="crt-effect"></div>
 
         <div class="ui-overlay">
-            <div class="health-container">
-                <div class="health-label">红狼机甲 [WASD + J/K]</div>
-                <div class="health-bar-bg">
-                    <div class="health-bar player1-health" id="player1Health"></div>
-                    <div class="health-text" id="player1HealthText">100</div>
+            <div class="player-ui p1">
+                <div class="health-section">
+                    <div class="health-label">
+                        <span class="player-name p1">红狼机甲</span>
+                        <span id="p1HealthNum">100</span>
+                    </div>
+                    <div class="health-bar-bg">
+                        <div class="health-bar player1-health" id="player1Health"></div>
+                        <div class="health-text" id="player1HealthText">100</div>
+                    </div>
+                </div>
+                <div class="skill-section">
+                    <div class="skill-slot skill1" id="p1Skill1">
+                        <span>R</span>
+                        <span class="skill-name">突进斩</span>
+                        <div class="skill-cooldown" id="p1Skill1Cd">0</div>
+                    </div>
+                    <div class="skill-slot skill2" id="p1Skill2">
+                        <span>E</span>
+                        <span class="skill-name">旋风斩</span>
+                        <div class="skill-cooldown" id="p1Skill2Cd">0</div>
+                    </div>
+                    <div class="skill-slot ultimate" id="p1Ult">
+                        <span>T</span>
+                        <span class="skill-name">狂狼怒吼</span>
+                        <div class="ult-charge"><div class="ult-charge-fill" id="p1UltCharge"></div></div>
+                        <div class="skill-cooldown" id="p1UltCd">0</div>
+                    </div>
                 </div>
             </div>
+
             <div class="vs-text">VS</div>
-            <div class="health-container">
-                <div class="health-label">[↑←↓→ + 1/2] 蓝鹰机甲</div>
-                <div class="health-bar-bg">
-                    <div class="health-bar player2-health" id="player2Health"></div>
-                    <div class="health-text" id="player2HealthText">100</div>
+
+            <div class="player-ui p2">
+                <div class="health-section">
+                    <div class="health-label">
+                        <span id="p2HealthNum">100</span>
+                        <span class="player-name p2">蓝鹰机甲</span>
+                    </div>
+                    <div class="health-bar-bg">
+                        <div class="health-bar player2-health" id="player2Health"></div>
+                        <div class="health-text" id="player2HealthText">100</div>
+                    </div>
+                </div>
+                <div class="skill-section">
+                    <div class="skill-slot skill1" id="p2Skill1">
+                        <span>R</span>
+                        <span class="skill-name">瞬闪</span>
+                        <div class="skill-cooldown" id="p2Skill1Cd">0</div>
+                    </div>
+                    <div class="skill-slot skill2" id="p2Skill2">
+                        <span>E</span>
+                        <span class="skill-name">冰霜冲击</span>
+                        <div class="skill-cooldown" id="p2Skill2Cd">0</div>
+                    </div>
+                    <div class="skill-slot ultimate" id="p2Ult">
+                        <span>T</span>
+                        <span class="skill-name">极冻风暴</span>
+                        <div class="ult-charge"><div class="ult-charge-fill" id="p2UltCharge"></div></div>
+                        <div class="skill-cooldown" id="p2UltCd">0</div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="controls-panel">
             <div class="controls-info">
-                <strong>P1:</strong> <span class="key">W</span>跳 <span class="key">A</span><span class="key">D</span>移动 <span class="key">S</span>防御 <span class="key">J</span>轻攻 <span class="key">K</span>重攻
+                <strong>P1:</strong> <span class="key">W</span>跳 <span class="key">A</span><span class="key">D</span>移动 <span class="key">S</span>防御 <span class="key">J</span>轻 <span class="key">K</span>重 <span class="key">R</span>突进 <span class="key">E</span>旋风 <span class="key">T</span>大招
             </div>
             <div class="controls-info">
-                <strong>P2:</strong> <span class="key">↑</span>跳 <span class="key">←</span><span class="key">→</span>移动 <span class="key">↓</span>防御 <span class="key">1/Num1</span>轻攻 <span class="key">2/Num2</span>重攻
+                <strong>P2:</strong> <span class="key">↑</span>跳 <span class="key">←</span><span class="key">→</span>移动 <span class="key">↓</span>防御 <span class="key">1</span>轻 <span class="key">2</span>重 <span class="key">3</span>瞬闪 <span class="key">4</span>冰霜 <span class="key">5</span>大招
             </div>
         </div>
 
         <div class="menu-overlay" id="menuOverlay">
             <h1 class="game-title">MECHA BATTLE</h1>
-            <h2 class="game-subtitle">像素风机甲对战</h2>
+            <h2 class="game-subtitle">像素风机甲对战 - 技能版</h2>
             
             <div class="mech-preview">
                 <div class="mech-card">
                     <h3>红狼机甲</h3>
-                    <p>攻击型机甲<br>高攻击 · 中防御</p>
+                    <div class="type">攻击型机甲</div>
+                    <p>高攻击 · 近战专家<br>擅长爆发伤害</p>
+                    <div class="skills-preview">
+                        <div class="skill-info"><span class="key">J</span> 轻攻击</div>
+                        <div class="skill-info"><span class="key">K</span> 重攻击</div>
+                        <div class="skill-info"><span class="key">R</span> 突进斩 - 快速位移攻击</div>
+                        <div class="skill-info"><span class="key">E</span> 旋风斩 - 范围攻击</div>
+                        <div class="skill-info"><span class="key">T</span> 狂狼怒吼 - 全屏大招</div>
+                    </div>
                 </div>
                 <div class="mech-card">
                     <h3>蓝鹰机甲</h3>
-                    <p>防御型机甲<br>中攻击 · 高防御</p>
+                    <div class="type">防御型机甲</div>
+                    <p>高防御 · 控制专家<br>擅长控制与反击</p>
+                    <div class="skills-preview">
+                        <div class="skill-info"><span class="key">1</span> 轻攻击</div>
+                        <div class="skill-info"><span class="key">2</span> 重攻击</div>
+                        <div class="skill-info"><span class="key">3</span> 瞬闪 - 快速位移</div>
+                        <div class="skill-info"><span class="key">4</span> 冰霜冲击 - 减速敌人</div>
+                        <div class="skill-info"><span class="key">5</span> 极冻风暴 - 全屏大招</div>
+                    </div>
                 </div>
             </div>
 
@@ -395,9 +641,12 @@
                     <p>
                         <span class="key">W</span> 跳跃<br>
                         <span class="key">A</span> <span class="key">D</span> 左右移动<br>
-                        <span class="key">S</span> 防御<br>
+                        <span class="key">S</span> 防御（减伤50%）<br>
                         <span class="key">J</span> 轻攻击<br>
-                        <span class="key">K</span> 重攻击
+                        <span class="key">K</span> 重攻击<br>
+                        <span class="key">R</span> 技能1：突进斩<br>
+                        <span class="key">E</span> 技能2：旋风斩<br>
+                        <span class="key">T</span> 大招：狂狼怒吼
                     </p>
                 </div>
                 <div class="player-controls">
@@ -405,26 +654,30 @@
                     <p>
                         <span class="key">↑</span> 跳跃<br>
                         <span class="key">←</span> <span class="key">→</span> 左右移动<br>
-                        <span class="key">↓</span> 防御<br>
-                        <span class="key">1</span>/<span class="key">Num1</span> 轻攻击<br>
-                        <span class="key">2</span>/<span class="key">Num2</span> 重攻击
+                        <span class="key">↓</span> 防御（减伤50%）<br>
+                        <span class="key">1</span> 轻攻击<br>
+                        <span class="key">2</span> 重攻击<br>
+                        <span class="key">3</span> 瞬闪<br>
+                        <span class="key">4</span> 冰霜冲击<br>
+                        <span class="key">5</span> 极冻风暴
                     </p>
                 </div>
             </div>
 
-            <button class="start-button" id="startButton">PRESS START</button>
+            <button class="start-button" id="startButton">⚔️ PRESS START ⚔️</button>
         </div>
 
         <div class="winner-overlay hidden" id="winnerOverlay">
             <div class="winner-text" id="winnerText">WINNER!</div>
             <div class="winner-sub" id="winnerSub">红狼机甲 胜利!</div>
-            <button class="restart-button" id="restartButton">再来一局</button>
+            <button class="restart-button" id="restartButton">⚔️ 再来一局 ⚔️</button>
         </div>
     </div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const gameContainer = document.getElementById('gameContainer');
 
         const GAME_WIDTH = 900;
         const GAME_HEIGHT = 600;
@@ -436,33 +689,90 @@
         const COLORS = {
             red: '#e63946',
             redDark: '#9d0208',
+            redLight: '#ff6b6b',
             blue: '#457b9d',
             blueDark: '#1d3557',
+            blueLight: '#74c0fc',
             gray: '#3d405b',
             lightGray: '#8d99ae',
             darkBg: '#2b2d42',
             white: '#f1faee',
             yellow: '#ffd700',
+            yellowLight: '#ffed4a',
             metal: '#6c757d',
-            metalDark: '#495057'
+            metalDark: '#495057',
+            green: '#4ecdc4',
+            cyan: '#00d9ff'
         };
 
+        class DamageNumber {
+            constructor(x, y, damage, color, isCritical = false) {
+                this.x = x;
+                this.y = y;
+                this.damage = damage;
+                this.color = color;
+                this.isCritical = isCritical;
+                this.life = 60;
+                this.maxLife = 60;
+                this.vy = -2;
+                this.scale = isCritical ? 1.5 : 1;
+            }
+
+            update() {
+                this.y += this.vy;
+                this.vy += 0.03;
+                this.life--;
+            }
+
+            draw() {
+                const alpha = Math.min(1, this.life / 30);
+                const scale = this.scale * (1 + (1 - this.life / this.maxLife) * 0.3);
+                
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.scale(scale, scale);
+                ctx.globalAlpha = alpha;
+                
+                ctx.font = 'bold 24px Courier New';
+                ctx.textAlign = 'center';
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 4;
+                ctx.strokeText('-' + this.damage, 0, 0);
+                ctx.fillStyle = this.color;
+                ctx.fillText('-' + this.damage, 0, 0);
+                
+                if (this.isCritical) {
+                    ctx.font = 'bold 14px Courier New';
+                    ctx.fillStyle = COLORS.yellow;
+                    ctx.fillText('CRITICAL!', 0, 20);
+                }
+                
+                ctx.restore();
+            }
+
+            isDead() {
+                return this.life <= 0;
+            }
+        }
+
         class Particle {
-            constructor(x, y, color, vx, vy) {
+            constructor(x, y, color, vx, vy, size = null) {
                 this.x = x;
                 this.y = y;
                 this.color = color;
-                this.vx = vx || (Math.random() - 0.5) * 8;
-                this.vy = vy || (Math.random() - 0.5) * 8 - 3;
+                this.vx = vx !== undefined ? vx : (Math.random() - 0.5) * 8;
+                this.vy = vy !== undefined ? vy : (Math.random() - 0.5) * 8 - 3;
                 this.life = 30;
                 this.maxLife = 30;
-                this.size = Math.random() * 4 + 2;
+                this.size = size || Math.random() * 5 + 2;
+                this.type = 'square';
             }
 
             update() {
                 this.x += this.vx;
                 this.y += this.vy;
                 this.vy += 0.2;
+                this.vx *= 0.98;
                 this.life--;
             }
 
@@ -470,7 +780,15 @@
                 const alpha = this.life / this.maxLife;
                 ctx.fillStyle = this.color;
                 ctx.globalAlpha = alpha;
-                ctx.fillRect(Math.floor(this.x), Math.floor(this.y), this.size, this.size);
+                
+                if (this.type === 'square') {
+                    ctx.fillRect(Math.floor(this.x), Math.floor(this.y), this.size, this.size);
+                } else if (this.type === 'circle') {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
                 ctx.globalAlpha = 1;
             }
 
@@ -479,17 +797,147 @@
             }
         }
 
+        class EnergyParticle extends Particle {
+            constructor(x, y, color, isPlayer1) {
+                super(x, y, color);
+                this.life = 40;
+                this.maxLife = 40;
+                this.size = Math.random() * 8 + 4;
+                this.isPlayer1 = isPlayer1;
+                this.targetX = isPlayer1 ? 150 : GAME_WIDTH - 210;
+                this.targetY = 80;
+                this.progress = 0;
+                this.type = 'energy';
+            }
+
+            update() {
+                this.progress += 0.03;
+                const t = Math.min(1, this.progress);
+                const easeT = 1 - Math.pow(1 - t, 3);
+                
+                this.x = this.x + (this.targetX - this.x) * easeT * 0.1;
+                this.y = this.y + (this.targetY - this.y) * easeT * 0.1;
+                this.life--;
+            }
+
+            draw() {
+                const alpha = this.life / this.maxLife;
+                const pulse = Math.sin(Date.now() * 0.02) * 0.3 + 0.7;
+                
+                ctx.save();
+                ctx.globalAlpha = alpha * pulse;
+                ctx.fillStyle = this.color;
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 15;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * pulse, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        class SkillEffect {
+            constructor(x, y, type, isPlayer1) {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.isPlayer1 = isPlayer1;
+                this.frame = 0;
+                this.maxFrames = 30;
+                this.particles = [];
+                
+                this.initEffect();
+            }
+
+            initEffect() {
+                if (this.type === 'dash') {
+                    for (let i = 0; i < 15; i++) {
+                        this.particles.push(new Particle(
+                            this.x + Math.random() * 30 - 15,
+                            this.y - 40 + Math.random() * 20,
+                            this.isPlayer1 ? COLORS.red : COLORS.blue,
+                            (this.isPlayer1 ? 1 : -1) * (Math.random() * 3 + 2),
+                            (Math.random() - 0.5) * 4,
+                            Math.random() * 6 + 3
+                        ));
+                    }
+                } else if (this.type === 'spin') {
+                    for (let i = 0; i < 20; i++) {
+                        const angle = (i / 20) * Math.PI * 2;
+                        this.particles.push(new Particle(
+                            this.x + Math.cos(angle) * 50,
+                            this.y - 40 + Math.sin(angle) * 30,
+                            COLORS.yellow,
+                            Math.cos(angle) * 3,
+                            Math.sin(angle) * 3 - 2,
+                            Math.random() * 8 + 4
+                        ));
+                    }
+                } else if (this.type === 'ice') {
+                    for (let i = 0; i < 25; i++) {
+                        this.particles.push(new Particle(
+                            this.x + (Math.random() - 0.5) * 80,
+                            this.y - 40 + (Math.random() - 0.5) * 60,
+                            COLORS.cyan,
+                            (Math.random() - 0.5) * 6,
+                            (Math.random() - 0.5) * 6 - 2,
+                            Math.random() * 6 + 3
+                        ));
+                    }
+                } else if (this.type === 'ultimate') {
+                    for (let i = 0; i < 50; i++) {
+                        this.particles.push(new Particle(
+                            this.x + (Math.random() - 0.5) * 200,
+                            this.y - 40 + (Math.random() - 0.5) * 100,
+                            this.isPlayer1 ? COLORS.redLight : COLORS.blueLight,
+                            (Math.random() - 0.5) * 15,
+                            (Math.random() - 0.5) * 15,
+                            Math.random() * 10 + 5
+                        ));
+                    }
+                }
+            }
+
+            update() {
+                this.frame++;
+                this.particles = this.particles.filter(p => {
+                    p.update();
+                    return !p.isDead();
+                });
+            }
+
+            draw() {
+                this.particles.forEach(p => p.draw());
+                
+                if (this.type === 'ultimate' && this.frame < 20) {
+                    const alpha = 1 - this.frame / 20;
+                    ctx.save();
+                    ctx.globalAlpha = alpha * 0.3;
+                    ctx.fillStyle = this.isPlayer1 ? COLORS.red : COLORS.blue;
+                    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+                    ctx.restore();
+                }
+            }
+
+            isDead() {
+                return this.frame >= this.maxFrames && this.particles.length === 0;
+            }
+        }
+
         class Player {
             constructor(id, x, isPlayer1) {
                 this.id = id;
                 this.x = x;
                 this.y = GROUND_Y;
+                this.startX = x;
                 this.width = 60;
                 this.height = 80;
                 this.velocityX = 0;
                 this.velocityY = 0;
                 this.health = 100;
                 this.maxHealth = 100;
+                this.ultimateCharge = 0;
+                this.maxUltimateCharge = 100;
                 this.isPlayer1 = isPlayer1;
                 this.facing = isPlayer1 ? 1 : -1;
                 this.state = 'idle';
@@ -501,17 +949,32 @@
                 this.animationFrame = 0;
                 this.walkFrame = 0;
                 this.particles = [];
+                this.skillEffects = [];
                 
                 this.mainColor = isPlayer1 ? COLORS.red : COLORS.blue;
                 this.darkColor = isPlayer1 ? COLORS.redDark : COLORS.blueDark;
+                this.lightColor = isPlayer1 ? COLORS.redLight : COLORS.blueLight;
                 this.name = isPlayer1 ? '红狼' : '蓝鹰';
+                
+                this.skill1Cooldown = 0;
+                this.skill2Cooldown = 0;
+                this.ultimateCooldown = 0;
+                this.skill1MaxCooldown = isPlayer1 ? 60 : 50;
+                this.skill2MaxCooldown = isPlayer1 ? 90 : 80;
+                this.ultimateMaxCooldown = 300;
+                
+                this.energyIndicator = 0;
+                this.isSlowed = false;
+                this.slowTimer = 0;
             }
 
             move(direction) {
                 if (this.state === 'hit' || this.state === 'win') return;
-                this.velocityX = direction * MOVE_SPEED;
+                let speed = MOVE_SPEED;
+                if (this.isSlowed) speed *= 0.5;
+                this.velocityX = direction * speed;
                 this.facing = direction;
-                if (this.isGrounded && this.state !== 'attack') {
+                if (this.isGrounded && this.state !== 'attack' && this.state !== 'skill') {
                     this.state = 'walk';
                 }
             }
@@ -527,6 +990,7 @@
 
             attack(type) {
                 if (this.attackCooldown > 0 || this.state === 'hit' || this.state === 'win') return;
+                if (this.state === 'skill') return;
                 
                 this.state = 'attack';
                 this.isAttacking = true;
@@ -546,8 +1010,74 @@
                 this.createAttackParticles();
             }
 
+            skill1() {
+                if (this.skill1Cooldown > 0 || this.state === 'hit' || this.state === 'win') return false;
+                if (this.state === 'skill') return false;
+                
+                this.state = 'skill';
+                this.skill1Cooldown = this.skill1MaxCooldown;
+                this.attackDamage = this.isPlayer1 ? 20 : 15;
+                this.attackRange = 80;
+                this.attackFrame = 0;
+                this.isAttacking = true;
+                
+                const dashSpeed = this.facing * 15;
+                this.velocityX = dashSpeed;
+                
+                this.skillEffects.push(new SkillEffect(this.x + this.width/2, this.y, 'dash', this.isPlayer1));
+                this.createSkillParticles(15, this.mainColor);
+                
+                this.ultimateCharge = Math.min(this.maxUltimateCharge, this.ultimateCharge + 5);
+                
+                return true;
+            }
+
+            skill2() {
+                if (this.skill2Cooldown > 0 || this.state === 'hit' || this.state === 'win') return false;
+                if (this.state === 'skill') return false;
+                
+                this.state = 'skill';
+                this.skill2Cooldown = this.skill2MaxCooldown;
+                this.attackDamage = this.isPlayer1 ? 30 : 20;
+                this.attackRange = 100;
+                this.attackFrame = 0;
+                this.isAttacking = true;
+                
+                if (this.isPlayer1) {
+                    this.skillEffects.push(new SkillEffect(this.x + this.width/2, this.y, 'spin', this.isPlayer1));
+                } else {
+                    this.skillEffects.push(new SkillEffect(this.x + this.width/2, this.y, 'ice', this.isPlayer1));
+                }
+                
+                this.createSkillParticles(25, this.isPlayer1 ? COLORS.yellow : COLORS.cyan);
+                
+                this.ultimateCharge = Math.min(this.maxUltimateCharge, this.ultimateCharge + 8);
+                
+                return true;
+            }
+
+            ultimate() {
+                if (this.ultimateCooldown > 0 || this.state === 'hit' || this.state === 'win') return false;
+                if (this.ultimateCharge < this.maxUltimateCharge) return false;
+                
+                this.state = 'skill';
+                this.ultimateCooldown = this.ultimateMaxCooldown;
+                this.ultimateCharge = 0;
+                this.attackDamage = 50;
+                this.attackRange = 300;
+                this.attackFrame = 0;
+                this.isAttacking = true;
+                
+                this.skillEffects.push(new SkillEffect(this.x + this.width/2, this.y - 40, 'ultimate', this.isPlayer1));
+                this.createSkillParticles(50, this.lightColor);
+                
+                game.screenShake(15, 0.5);
+                
+                return true;
+            }
+
             defend(isDefending) {
-                if (isDefending && this.state !== 'attack' && this.state !== 'hit' && this.state !== 'win') {
+                if (isDefending && this.state !== 'attack' && this.state !== 'hit' && this.state !== 'win' && this.state !== 'skill') {
                     this.state = 'defend';
                     this.velocityX = 0;
                 } else if (!isDefending && this.state === 'defend') {
@@ -555,7 +1085,7 @@
                 }
             }
 
-            takeDamage(damage, fromDirection) {
+            takeDamage(damage, fromDirection, attacker) {
                 if (this.hitCooldown > 0) return false;
                 
                 let actualDamage = damage;
@@ -567,12 +1097,22 @@
                 this.health = Math.max(0, this.health - actualDamage);
                 this.state = 'hit';
                 this.hitCooldown = 20;
-                this.velocityX = fromDirection * 8;
-                this.velocityY = -5;
+                this.velocityX = fromDirection * 10;
+                this.velocityY = -6;
                 this.isGrounded = false;
                 this.createHitParticles();
                 
+                game.createDamageNumber(this.x + this.width/2, this.y - this.height, actualDamage, this.mainColor, damage >= 30);
+                game.screenShake(damage >= 30 ? 8 : 4, 0.15);
+                
+                attacker.ultimateCharge = Math.min(attacker.maxUltimateCharge, attacker.ultimateCharge + damage);
+                
                 return true;
+            }
+
+            applySlow(duration) {
+                this.isSlowed = true;
+                this.slowTimer = duration;
             }
 
             update() {
@@ -583,10 +1123,19 @@
                         this.state = 'idle';
                     }
                 }
+                if (this.skill1Cooldown > 0) this.skill1Cooldown--;
+                if (this.skill2Cooldown > 0) this.skill2Cooldown--;
+                if (this.ultimateCooldown > 0) this.ultimateCooldown--;
+                if (this.slowTimer > 0) {
+                    this.slowTimer--;
+                    if (this.slowTimer === 0) {
+                        this.isSlowed = false;
+                    }
+                }
 
-                if (this.state === 'attack') {
+                if (this.state === 'skill' || this.state === 'attack') {
                     this.attackFrame++;
-                    if (this.attackFrame > 15) {
+                    if (this.attackFrame > 20) {
                         this.state = 'idle';
                         this.isAttacking = false;
                     }
@@ -619,21 +1168,27 @@
 
                 this.walkFrame++;
                 this.animationFrame++;
+                this.energyIndicator = (this.energyIndicator + 0.1) % (Math.PI * 2);
 
                 this.particles = this.particles.filter(p => {
                     p.update();
                     return !p.isDead();
                 });
+                
+                this.skillEffects = this.skillEffects.filter(e => {
+                    e.update();
+                    return !e.isDead();
+                });
             }
 
             getAttackHitbox() {
-                if (!this.isAttacking || this.attackFrame < 5 || this.attackFrame > 12) return null;
+                if (!this.isAttacking || this.attackFrame < 5 || this.attackFrame > 15) return null;
                 
                 return {
                     x: this.facing === 1 ? this.x + this.width : this.x - this.attackRange,
-                    y: this.y - this.height / 2,
+                    y: this.y - this.height / 2 - 10,
                     width: this.attackRange,
-                    height: 40
+                    height: this.height / 2 + 20
                 };
             }
 
@@ -649,12 +1204,24 @@
             createAttackParticles() {
                 const px = this.facing === 1 ? this.x + this.width : this.x;
                 const py = this.y - this.height / 2;
-                for (let i = 0; i < 8; i++) {
+                for (let i = 0; i < 10; i++) {
                     this.particles.push(new Particle(
                         px, py, 
                         this.mainColor,
-                        this.facing * (Math.random() * 5 + 2),
-                        (Math.random() - 0.5) * 4
+                        this.facing * (Math.random() * 6 + 3),
+                        (Math.random() - 0.5) * 5
+                    ));
+                }
+            }
+
+            createSkillParticles(count, color) {
+                for (let i = 0; i < count; i++) {
+                    this.particles.push(new Particle(
+                        this.x + this.width / 2 + (Math.random() - 0.5) * 40,
+                        this.y - this.height / 2 + (Math.random() - 0.5) * 40,
+                        color,
+                        (Math.random() - 0.5) * 10,
+                        (Math.random() - 0.5) * 10 - 3
                     ));
                 }
             }
@@ -662,12 +1229,12 @@
             createHitParticles() {
                 const px = this.x + this.width / 2;
                 const py = this.y - this.height / 2;
-                for (let i = 0; i < 12; i++) {
+                for (let i = 0; i < 15; i++) {
                     this.particles.push(new Particle(
                         px, py, 
                         COLORS.yellow,
-                        (Math.random() - 0.5) * 10,
-                        (Math.random() - 0.5) * 10
+                        (Math.random() - 0.5) * 12,
+                        (Math.random() - 0.5) * 12
                     ));
                 }
             }
@@ -675,23 +1242,23 @@
             createDefendParticles() {
                 const px = this.x + this.width / 2;
                 const py = this.y - this.height / 2;
-                for (let i = 0; i < 6; i++) {
+                for (let i = 0; i < 8; i++) {
                     this.particles.push(new Particle(
                         px, py, 
                         COLORS.white,
-                        (Math.random() - 0.5) * 6,
-                        (Math.random() - 0.5) * 6
+                        (Math.random() - 0.5) * 8,
+                        (Math.random() - 0.5) * 8
                     ));
                 }
             }
 
             createJumpParticles() {
-                for (let i = 0; i < 5; i++) {
+                for (let i = 0; i < 6; i++) {
                     this.particles.push(new Particle(
                         this.x + this.width / 2, this.y,
                         COLORS.metal,
-                        (Math.random() - 0.5) * 4,
-                        Math.random() * -2
+                        (Math.random() - 0.5) * 5,
+                        Math.random() * -3
                     ));
                 }
             }
@@ -715,86 +1282,116 @@
                 ctx.restore();
 
                 this.particles.forEach(p => p.draw());
+                this.skillEffects.forEach(e => e.draw());
+                
+                if (this.isSlowed) {
+                    ctx.save();
+                    ctx.strokeStyle = COLORS.cyan;
+                    ctx.lineWidth = 2;
+                    ctx.globalAlpha = 0.6;
+                    ctx.setLineDash([5, 5]);
+                    ctx.strokeRect(this.x - 5, this.y - this.height - 5, this.width + 10, this.height + 10);
+                    ctx.restore();
+                }
             }
 
             drawMech(x, y) {
                 const bobOffset = this.state === 'idle' ? Math.sin(this.animationFrame * 0.1) * 2 : 0;
-                const walkOffset = this.state === 'walk' ? Math.sin(this.walkFrame * 0.3) * 3 : 0;
-
+                const walkOffset = this.state === 'walk' ? Math.sin(this.walkFrame * 0.3) * 4 : 0;
+                const energyPulse = Math.sin(this.energyIndicator) * 0.5 + 0.5;
+                
                 ctx.fillStyle = this.darkColor;
-                ctx.fillRect(x + 15, y + 5 + bobOffset, 30, 10);
+                ctx.fillRect(x + 15, y + 5 + bobOffset, 30, 12);
                 
                 ctx.fillStyle = this.mainColor;
-                ctx.fillRect(x + 10, y + 15 + bobOffset, 40, 25);
+                ctx.fillRect(x + 8, y + 15 + bobOffset, 44, 28);
                 
                 ctx.fillStyle = COLORS.metalDark;
-                ctx.fillRect(x + 15, y + 20 + bobOffset, 10, 8);
-                ctx.fillRect(x + 35, y + 20 + bobOffset, 10, 8);
+                ctx.fillRect(x + 14, y + 20 + bobOffset, 12, 10);
+                ctx.fillRect(x + 34, y + 20 + bobOffset, 12, 10);
                 
-                if (this.state === 'attack') {
-                    const attackProgress = this.attackFrame / 15;
-                    const punchExtend = Math.sin(attackProgress * Math.PI) * 25;
-                    
-                    ctx.fillStyle = this.mainColor;
-                    ctx.fillRect(x + 45 + punchExtend, y + 22 + bobOffset, 20, 12);
-                    ctx.fillStyle = COLORS.metal;
-                    ctx.fillRect(x + 55 + punchExtend, y + 20 + bobOffset, 15, 16);
-                } else {
-                    ctx.fillStyle = this.mainColor;
-                    ctx.fillRect(x + 45, y + 22 + bobOffset, 15, 12);
-                    ctx.fillStyle = COLORS.metal;
-                    ctx.fillRect(x + 55, y + 20 + bobOffset, 10, 16);
-                }
-
+                ctx.fillStyle = this.darkColor;
+                ctx.fillRect(x + 17, y + 23 + bobOffset, 6, 5);
+                ctx.fillRect(x + 37, y + 23 + bobOffset, 6, 5);
+                
+                const armExtend = this.state === 'attack' || this.state === 'skill' 
+                    ? Math.sin((this.attackFrame / 20) * Math.PI) * 30 
+                    : 0;
+                
+                ctx.fillStyle = this.mainColor;
+                ctx.fillRect(x + 48 + armExtend, y + 22 + bobOffset, 18, 14);
+                ctx.fillStyle = COLORS.metal;
+                ctx.fillRect(x + 58 + armExtend, y + 18 + bobOffset, 18, 22);
+                
                 ctx.fillStyle = this.mainColor;
                 if (this.state === 'defend') {
-                    ctx.fillRect(x + 40, y + 18 + bobOffset, 20, 12);
+                    ctx.fillRect(x + 40, y + 16 + bobOffset, 24, 16);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.fillRect(x + 42, y + 18 + bobOffset, 20, 12);
                 } else {
-                    ctx.fillRect(x + 35, y + 15 + bobOffset, 12, 10);
+                    ctx.fillRect(x + 32, y + 15 + bobOffset, 14, 12);
                 }
 
                 ctx.fillStyle = this.darkColor;
-                ctx.fillRect(x + 20, y + 40 + bobOffset, 20, 20);
+                ctx.fillRect(x + 18, y + 43 + bobOffset, 24, 24);
                 
                 ctx.fillStyle = this.mainColor;
-                ctx.fillRect(x + 15, y + 45 + bobOffset, 10, 25 + walkOffset);
-                ctx.fillRect(x + 35, y + 45 + bobOffset, 10, 25 - walkOffset);
+                ctx.fillRect(x + 12, y + 48 + bobOffset, 12, 28 + walkOffset);
+                ctx.fillRect(x + 36, y + 48 + bobOffset, 12, 28 - walkOffset);
                 
                 ctx.fillStyle = COLORS.metal;
-                ctx.fillRect(x + 12, y + 65 + bobOffset + walkOffset, 15, 8);
-                ctx.fillRect(x + 33, y + 65 + bobOffset - walkOffset, 15, 8);
+                ctx.fillRect(x + 8, y + 72 + bobOffset + walkOffset, 18, 10);
+                ctx.fillRect(x + 34, y + 72 + bobOffset - walkOffset, 18, 10);
                 
                 ctx.fillStyle = COLORS.metalDark;
-                ctx.fillRect(x + 17, y + 70 + bobOffset + walkOffset, 8, 5);
-                ctx.fillRect(x + 35, y + 70 + bobOffset - walkOffset, 8, 5);
+                ctx.fillRect(x + 14, y + 78 + bobOffset + walkOffset, 10, 6);
+                ctx.fillRect(x + 36, y + 78 + bobOffset - walkOffset, 10, 6);
 
                 ctx.fillStyle = this.darkColor;
-                ctx.fillRect(x + 30, y - 5 + bobOffset, 20, 20);
+                ctx.fillRect(x + 28, y - 8 + bobOffset, 24, 24);
                 
                 ctx.fillStyle = this.mainColor;
-                ctx.fillRect(x + 20, y + bobOffset, 40, 15);
+                ctx.fillRect(x + 16, y - 2 + bobOffset, 48, 18);
                 
                 ctx.fillStyle = COLORS.metal;
-                ctx.fillRect(x + 25, y - 8 + bobOffset, 8, 8);
-                ctx.fillRect(x + 47, y - 8 + bobOffset, 8, 8);
-
-                ctx.fillStyle = '#00ff00';
-                ctx.globalAlpha = 0.8;
-                ctx.fillRect(x + 28, y + 2 + bobOffset, 6, 4);
-                ctx.fillRect(x + 36, y + 2 + bobOffset, 6, 4);
+                ctx.fillRect(x + 20, y - 12 + bobOffset, 12, 12);
+                ctx.fillRect(x + 48, y - 12 + bobOffset, 12, 12);
+                
+                ctx.fillStyle = this.lightColor;
+                ctx.globalAlpha = 0.7 + energyPulse * 0.3;
+                ctx.fillRect(x + 24, y + 2 + bobOffset, 8, 6);
+                ctx.fillRect(x + 38, y + 2 + bobOffset, 8, 6);
                 ctx.globalAlpha = 1;
 
+                if (this.state === 'skill' && this.attackFrame < 10) {
+                    ctx.save();
+                    ctx.globalAlpha = 0.6;
+                    ctx.fillStyle = this.isPlayer1 ? COLORS.redLight : COLORS.blueLight;
+                    ctx.shadowColor = this.isPlayer1 ? COLORS.redLight : COLORS.blueLight;
+                    ctx.shadowBlur = 30;
+                    ctx.fillRect(x - 10, y - 10, this.width + 20, this.height + 20);
+                    ctx.restore();
+                }
+
                 if (this.state === 'win') {
-                    const winBob = Math.sin(this.animationFrame * 0.2) * 5;
+                    const winBob = Math.sin(this.animationFrame * 0.2) * 6;
                     ctx.fillStyle = this.mainColor;
-                    ctx.fillRect(x + 45, y - 15 + winBob, 15, 8);
+                    ctx.fillRect(x + 50, y - 20 + winBob, 18, 10);
                     ctx.fillStyle = COLORS.yellow;
-                    ctx.fillRect(x + 48, y - 18 + winBob, 9, 5);
+                    ctx.shadowColor = COLORS.yellow;
+                    ctx.shadowBlur = 15;
+                    ctx.fillRect(x + 53, y - 24 + winBob, 12, 6);
+                    ctx.shadowBlur = 0;
                 }
 
                 if (this.state === 'hit') {
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-                    ctx.fillRect(x, y - this.height, this.width, this.height);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                    ctx.fillRect(x - 2, y - 2, this.width + 4, this.height + 4);
+                }
+                
+                for (let i = 0; i < 3; i++) {
+                    ctx.fillStyle = COLORS.metalDark;
+                    ctx.fillRect(x + 22 + i * 4, y + 48 + bobOffset, 2, 20 + walkOffset * (i % 2 === 0 ? 1 : -1));
                 }
             }
         }
@@ -805,6 +1402,7 @@
                 this.player1 = null;
                 this.player2 = null;
                 this.particles = [];
+                this.damageNumbers = [];
                 this.keys = {};
                 this.setupEventListeners();
             }
@@ -834,9 +1432,12 @@
                 this.state = 'playing';
                 this.player1 = new Player(1, 150, true);
                 this.player2 = new Player(2, GAME_WIDTH - 210, false);
+                this.particles = [];
+                this.damageNumbers = [];
                 document.getElementById('menuOverlay').classList.add('hidden');
                 document.getElementById('winnerOverlay').classList.add('hidden');
                 this.updateHealthUI();
+                this.updateSkillUI();
             }
 
             restartGame() {
@@ -853,6 +1454,21 @@
                 else this.player1.defend(false);
                 if (this.keys['KeyJ']) this.player1.attack('light');
                 if (this.keys['KeyK']) this.player1.attack('heavy');
+                if (this.keys['KeyR'] && !this.keys['KeyR_used']) {
+                    this.keys['KeyR_used'] = true;
+                    this.player1.skill1();
+                }
+                if (!this.keys['KeyR']) this.keys['KeyR_used'] = false;
+                if (this.keys['KeyE'] && !this.keys['KeyE_used']) {
+                    this.keys['KeyE_used'] = true;
+                    this.player1.skill2();
+                }
+                if (!this.keys['KeyE']) this.keys['KeyE_used'] = false;
+                if (this.keys['KeyT'] && !this.keys['KeyT_used']) {
+                    this.keys['KeyT_used'] = true;
+                    this.player1.ultimate();
+                }
+                if (!this.keys['KeyT']) this.keys['KeyT_used'] = false;
 
                 if (this.keys['ArrowUp']) this.player2.jump();
                 if (this.keys['ArrowLeft']) this.player2.move(-1);
@@ -861,6 +1477,21 @@
                 else this.player2.defend(false);
                 if (this.keys['Digit1'] || this.keys['Numpad1']) this.player2.attack('light');
                 if (this.keys['Digit2'] || this.keys['Numpad2']) this.player2.attack('heavy');
+                if ((this.keys['Digit3'] || this.keys['Numpad3']) && !this.keys['P2R_used']) {
+                    this.keys['P2R_used'] = true;
+                    this.player2.skill1();
+                }
+                if (!this.keys['Digit3'] && !this.keys['Numpad3']) this.keys['P2R_used'] = false;
+                if ((this.keys['Digit4'] || this.keys['Numpad4']) && !this.keys['P2E_used']) {
+                    this.keys['P2E_used'] = true;
+                    this.player2.skill2();
+                }
+                if (!this.keys['Digit4'] && !this.keys['Numpad4']) this.keys['P2E_used'] = false;
+                if ((this.keys['Digit5'] || this.keys['Numpad5']) && !this.keys['P2T_used']) {
+                    this.keys['P2T_used'] = true;
+                    this.player2.ultimate();
+                }
+                if (!this.keys['Digit5'] && !this.keys['Numpad5']) this.keys['P2T_used'] = false;
             }
 
             checkCollisions() {
@@ -871,10 +1502,13 @@
                 
                 if (p1Attack) {
                     if (this.checkAABB(p1Attack, p2Hit)) {
-                        const hit = this.player2.takeDamage(this.player1.attackDamage, this.player1.facing);
+                        const hit = this.player2.takeDamage(this.player1.attackDamage, this.player1.facing, this.player1);
                         if (hit) {
                             this.player1.isAttacking = false;
                             this.createHitParticles(this.player2.x + 30, this.player2.y - 40, COLORS.yellow);
+                            if (this.player1.state === 'skill' && this.player1.skill2Cooldown > 0 && this.player1.skill2Cooldown < this.player1.skill2MaxCooldown - 5) {
+                                this.player2.applySlow(120);
+                            }
                         }
                     }
                 }
@@ -884,10 +1518,13 @@
                 
                 if (p2Attack) {
                     if (this.checkAABB(p2Attack, p1Hit)) {
-                        const hit = this.player1.takeDamage(this.player2.attackDamage, this.player2.facing);
+                        const hit = this.player1.takeDamage(this.player2.attackDamage, this.player2.facing, this.player2);
                         if (hit) {
                             this.player2.isAttacking = false;
                             this.createHitParticles(this.player1.x + 30, this.player1.y - 40, COLORS.yellow);
+                            if (this.player2.state === 'skill' && this.player2.skill2Cooldown > 0 && this.player2.skill2Cooldown < this.player2.skill2MaxCooldown - 5) {
+                                this.player1.applySlow(120);
+                            }
                         }
                     }
                 }
@@ -901,9 +1538,20 @@
             }
 
             createHitParticles(x, y, color) {
-                for (let i = 0; i < 8; i++) {
+                for (let i = 0; i < 12; i++) {
                     this.particles.push(new Particle(x, y, color));
                 }
+            }
+
+            createDamageNumber(x, y, damage, color, isCritical = false) {
+                this.damageNumbers.push(new DamageNumber(x, y, damage, color, isCritical));
+            }
+
+            screenShake(intensity, duration) {
+                gameContainer.classList.add('shake');
+                setTimeout(() => {
+                    gameContainer.classList.remove('shake');
+                }, duration * 1000);
             }
 
             checkWinCondition() {
@@ -937,15 +1585,83 @@
             updateHealthUI() {
                 const p1HealthBar = document.getElementById('player1Health');
                 const p1HealthText = document.getElementById('player1HealthText');
+                const p1HealthNum = document.getElementById('p1HealthNum');
                 const p2HealthBar = document.getElementById('player2Health');
                 const p2HealthText = document.getElementById('player2HealthText');
+                const p2HealthNum = document.getElementById('p2HealthNum');
 
                 if (this.player1 && this.player2) {
                     p1HealthBar.style.width = this.player1.health + '%';
                     p1HealthText.textContent = this.player1.health;
+                    p1HealthNum.textContent = this.player1.health;
                     p2HealthBar.style.width = this.player2.health + '%';
                     p2HealthText.textContent = this.player2.health;
+                    p2HealthNum.textContent = this.player2.health;
                 }
+            }
+
+            updateSkillUI() {
+                if (!this.player1 || !this.player2) return;
+
+                const p1s1 = document.getElementById('p1Skill1');
+                const p1s1Cd = document.getElementById('p1Skill1Cd');
+                const p1s2 = document.getElementById('p1Skill2');
+                const p1s2Cd = document.getElementById('p1Skill2Cd');
+                const p1ult = document.getElementById('p1Ult');
+                const p1ultCd = document.getElementById('p1UltCd');
+                const p1ultCharge = document.getElementById('p1UltCharge');
+                
+                const p2s1 = document.getElementById('p2Skill1');
+                const p2s1Cd = document.getElementById('p2Skill1Cd');
+                const p2s2 = document.getElementById('p2Skill2');
+                const p2s2Cd = document.getElementById('p2Skill2Cd');
+                const p2ult = document.getElementById('p2Ult');
+                const p2ultCd = document.getElementById('p2UltCd');
+                const p2ultCharge = document.getElementById('p2UltCharge');
+
+                if (this.player1.skill1Cooldown > 0) {
+                    p1s1.classList.add('on-cooldown');
+                    p1s1Cd.textContent = Math.ceil(this.player1.skill1Cooldown / 60);
+                } else {
+                    p1s1.classList.remove('on-cooldown');
+                }
+
+                if (this.player1.skill2Cooldown > 0) {
+                    p1s2.classList.add('on-cooldown');
+                    p1s2Cd.textContent = Math.ceil(this.player1.skill2Cooldown / 60);
+                } else {
+                    p1s2.classList.remove('on-cooldown');
+                }
+
+                if (this.player1.ultimateCooldown > 0) {
+                    p1ult.classList.add('on-cooldown');
+                    p1ultCd.textContent = Math.ceil(this.player1.ultimateCooldown / 60);
+                } else {
+                    p1ult.classList.remove('on-cooldown');
+                }
+                p1ultCharge.style.width = (this.player1.ultimateCharge / this.player1.maxUltimateCharge * 100) + '%';
+
+                if (this.player2.skill1Cooldown > 0) {
+                    p2s1.classList.add('on-cooldown');
+                    p2s1Cd.textContent = Math.ceil(this.player2.skill1Cooldown / 60);
+                } else {
+                    p2s1.classList.remove('on-cooldown');
+                }
+
+                if (this.player2.skill2Cooldown > 0) {
+                    p2s2.classList.add('on-cooldown');
+                    p2s2Cd.textContent = Math.ceil(this.player2.skill2Cooldown / 60);
+                } else {
+                    p2s2.classList.remove('on-cooldown');
+                }
+
+                if (this.player2.ultimateCooldown > 0) {
+                    p2ult.classList.add('on-cooldown');
+                    p2ultCd.textContent = Math.ceil(this.player2.ultimateCooldown / 60);
+                } else {
+                    p2ult.classList.remove('on-cooldown');
+                }
+                p2ultCharge.style.width = (this.player2.ultimateCharge / this.player2.maxUltimateCharge * 100) + '%';
             }
 
             update() {
@@ -957,11 +1673,17 @@
                     this.checkCollisions();
                     this.checkWinCondition();
                     this.updateHealthUI();
+                    this.updateSkillUI();
                 }
 
                 this.particles = this.particles.filter(p => {
                     p.update();
                     return !p.isDead();
+                });
+
+                this.damageNumbers = this.damageNumbers.filter(d => {
+                    d.update();
+                    return !d.isDead();
                 });
             }
 
@@ -969,48 +1691,70 @@
                 ctx.fillStyle = COLORS.darkBg;
                 ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-                ctx.fillStyle = '#1a1a2e';
-                for (let i = 0; i < 5; i++) {
-                    const bx = 100 + i * 180;
-                    const bh = 150 + Math.sin(i * 1.5) * 50;
-                    ctx.fillRect(bx, GROUND_Y - bh - 100, 80, bh);
-                    ctx.fillRect(bx - 10, GROUND_Y - bh - 100, 100, 20);
+                const gradient = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+                gradient.addColorStop(0, '#1a1a2e');
+                gradient.addColorStop(1, COLORS.darkBg);
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, GAME_WIDTH, GROUND_Y);
+
+                for (let i = 0; i < 6; i++) {
+                    const bx = 80 + i * 160;
+                    const bh = 140 + Math.sin(i * 1.8) * 60;
+                    ctx.fillStyle = '#15152a';
+                    ctx.fillRect(bx, GROUND_Y - bh - 100, 90, bh);
+                    ctx.fillRect(bx - 15, GROUND_Y - bh - 105, 120, 25);
+                    ctx.fillStyle = '#1d1d3a';
+                    ctx.fillRect(bx + 10, GROUND_Y - bh - 80, 20, 30);
+                    ctx.fillRect(bx + 50, GROUND_Y - bh - 60, 25, 40);
                 }
 
-                ctx.fillStyle = COLORS.gray;
-                for (let i = 0; i < 3; i++) {
-                    const px = 250 + i * 200;
-                    ctx.fillRect(px, 100, 15, GROUND_Y - 150);
-                    ctx.fillRect(px - 5, 95, 25, 15);
+                for (let i = 0; i < 4; i++) {
+                    const px = 200 + i * 180;
+                    ctx.fillStyle = COLORS.gray;
+                    ctx.fillRect(px, 80, 18, GROUND_Y - 130);
+                    ctx.fillRect(px - 8, 72, 34, 20);
+                    ctx.fillStyle = Math.sin(Date.now() * 0.003 + i) > 0 ? '#ff4444' : '#882222';
+                    ctx.fillRect(px, 75, 18, 8);
                 }
 
                 ctx.fillStyle = COLORS.lightGray;
-                ctx.fillRect(0, GROUND_Y - 20, GAME_WIDTH, 5);
+                ctx.fillRect(0, GROUND_Y - 25, GAME_WIDTH, 6);
                 
-                for (let i = 0; i < GAME_WIDTH; i += 40) {
-                    ctx.fillStyle = i % 80 === 0 ? COLORS.metalDark : COLORS.gray;
-                    ctx.fillRect(i, GROUND_Y - 15, 40, 15);
+                for (let i = 0; i < GAME_WIDTH; i += 45) {
+                    ctx.fillStyle = i % 90 === 0 ? COLORS.metalDark : COLORS.gray;
+                    ctx.fillRect(i, GROUND_Y - 19, 45, 19);
                 }
 
                 ctx.fillStyle = COLORS.metal;
                 ctx.fillRect(0, GROUND_Y, GAME_WIDTH, 120);
                 
-                for (let i = 0; i < GAME_WIDTH; i += 60) {
-                    ctx.fillStyle = i % 120 === 0 ? COLORS.metalDark : COLORS.gray;
-                    ctx.fillRect(i, GROUND_Y, 60, 5);
+                for (let i = 0; i < GAME_WIDTH; i += 70) {
+                    ctx.fillStyle = i % 140 === 0 ? COLORS.metalDark : COLORS.gray;
+                    ctx.fillRect(i, GROUND_Y, 70, 8);
                 }
 
-                ctx.fillStyle = 'rgba(255, 215, 0, 0.1)';
-                ctx.fillRect(0, 0, GAME_WIDTH, 80);
-
-                ctx.fillStyle = COLORS.yellow;
-                ctx.globalAlpha = 0.3;
-                for (let i = 0; i < 8; i++) {
-                    const sx = 100 + i * 110;
-                    ctx.fillRect(sx, 30, 3, 50);
-                    ctx.fillRect(sx - 5, 25, 13, 8);
+                for (let i = 0; i < 12; i++) {
+                    const sx = 60 + i * 80;
+                    const blink = Math.sin(Date.now() * 0.005 + i * 0.5) > 0.7;
+                    ctx.fillStyle = blink ? '#ff6b6b' : '#661111';
+                    ctx.shadowColor = blink ? '#ff6b6b' : 'transparent';
+                    ctx.shadowBlur = blink ? 15 : 0;
+                    ctx.fillRect(sx, 35, 6, 45);
+                    ctx.fillRect(sx - 8, 28, 22, 12);
+                    ctx.shadowBlur = 0;
                 }
-                ctx.globalAlpha = 1;
+
+                for (let i = 0; i < 5; i++) {
+                    const x = 120 + i * 170;
+                    const y = 150 + Math.sin(Date.now() * 0.002 + i) * 10;
+                    ctx.fillStyle = 'rgba(100, 100, 120, 0.3)';
+                    ctx.fillRect(x, y, 30, 80);
+                    const steamOffset = (Date.now() * 0.05 + i * 50) % 100;
+                    ctx.fillStyle = 'rgba(150, 150, 170, 0.2)';
+                    ctx.beginPath();
+                    ctx.arc(x + 15, y - steamOffset, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
 
             render() {
@@ -1024,6 +1768,7 @@
                 }
 
                 this.particles.forEach(p => p.draw());
+                this.damageNumbers.forEach(d => d.draw());
             }
 
             gameLoop() {
